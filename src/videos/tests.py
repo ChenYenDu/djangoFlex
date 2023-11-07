@@ -38,3 +38,14 @@ class VideoModelTestCase(TestCase):
             state=Video.VideoStateOptions.PUBLISH, publish_timestamp__lte=now
         )
         self.assertTrue(published_qs.exists())
+
+    def test_publish_manager(self):
+        """
+        This is the test after we add VideoManager to models.py
+        """
+        published_qs = Video.objects.all().published()
+        published_qs_2 = (
+            Video.objects.published()
+        )  # after we add published to VideoManager
+        self.assertTrue(published_qs.exists())
+        self.assertTrue(published_qs_2.exists())
