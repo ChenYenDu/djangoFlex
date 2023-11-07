@@ -1,15 +1,23 @@
 from django.test import TestCase
 from django.utils import timezone
 from .models import Video
+from django.utils.text import slugify
 
 
 class VideoModelTestCase(TestCase):
     def setUp(self) -> None:
-        Video.objects.create(title="Test Title")
-        Video.objects.create(
-            title="Test Title 2", state=Video.VideoStateOptions.PUBLISH
+        self.test_obj_1 = Video.objects.create(title="Test Title", video_id="Test01")
+        self.test_obj_2 = Video.objects.create(
+            title="Test Title 2",
+            state=Video.VideoStateOptions.PUBLISH,
+            video_id="Test02",
         )
         return super().setUp()
+
+    def test_slug_field(self):
+        title = self.test_obj_1.title
+        test_slug = slugify(title)
+        self.assertEqual(test_slug, self.test_obj_1.slug)
 
     def test_valid_title(self):
         title = "Test Title"
