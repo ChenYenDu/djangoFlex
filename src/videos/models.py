@@ -55,12 +55,6 @@ class Video(models.Model):
     def is_published(self):
         return self.active
 
-    def save(self, *args, **kwargs) -> None:
-        if self.slug is None:
-            self.slug = slugify(self.title)
-
-        return super().save(*args, **kwargs)
-
 
 class VideoAllProxy(Video):
     class Meta:
@@ -76,7 +70,7 @@ class VideoPublishedProxy(Video):
         verbose_name_plural = "Published Videos"
 
 
-# publish state pre_save signal receiver function
+# publish state pre-save signal receiver function
 def publish_state_pre_save(sender, instance, *args, **kwargs):
     is_publish = instance.state == PublishStateOptions.PUBLISH
     is_draft = instance.state == PublishStateOptions.DRAFT
@@ -90,3 +84,14 @@ def publish_state_pre_save(sender, instance, *args, **kwargs):
 
 
 pre_save.connect(publish_state_pre_save, sender=Video)
+
+
+# slug field pre-save signal receiver function
+def slugify_pre_save(sender, instance, *args, **kwargs):
+    title = instance.title
+    slug = instance.slug
+    if slug is None:
+        instance.slug = slugify(title)
+
+
+pre_save.connect(slugify_pre_save, Video)
