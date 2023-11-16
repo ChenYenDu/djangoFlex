@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 from djangoflix.db.models import PublishStateOptions
 from djangoflix.db.receivers import publish_state_pre_save, slugify_pre_save
-
+from videos.models import Video
 
 # Create your models here.
 
@@ -30,6 +30,9 @@ class Playlist(models.Model):
     title = models.CharField(max_length=220)
     description = models.TextField(blank=True, null=True)
     slug = models.SlugField(blank=True, null=True)
+    video = models.ForeignKey(
+        Video, null=True, on_delete=models.SET_NULL
+    )  # one video per playlist
     active = models.BooleanField(default=True)
     state = models.CharField(
         max_length=2,
