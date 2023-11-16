@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.utils import timezone
-from .models import Video
 from django.utils.text import slugify
+
+from .models import Video, PublishStateOptions
 
 
 class VideoModelTestCase(TestCase):
@@ -9,7 +10,7 @@ class VideoModelTestCase(TestCase):
         self.test_obj_1 = Video.objects.create(title="Test Title", video_id="Test01")
         self.test_obj_2 = Video.objects.create(
             title="Test Title 2",
-            state=Video.VideoStateOptions.PUBLISH,
+            state=PublishStateOptions.PUBLISH,
             video_id="Test02",
         )
         return super().setUp()
@@ -29,13 +30,13 @@ class VideoModelTestCase(TestCase):
         self.assertEqual(qs.count(), 2)
 
     def test_draft_case(self):
-        qs = Video.objects.filter(state=Video.VideoStateOptions.DRAFT)
+        qs = Video.objects.filter(state=PublishStateOptions.DRAFT)
         self.assertEqual(qs.count(), 1)
 
     def test_publish_case(self):
         now = timezone.now()
         published_qs = Video.objects.filter(
-            state=Video.VideoStateOptions.PUBLISH, publish_timestamp__lte=now
+            state=PublishStateOptions.PUBLISH, publish_timestamp__lte=now
         )
         self.assertTrue(published_qs.exists())
 
