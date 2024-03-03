@@ -20,7 +20,7 @@ class PlaylistQuerySet(models.QuerySet):
 
 class PlaylistManager(models.Manager):
     def get_queryset(self) -> QuerySet:
-        return PlaylistQuerySet(self.model, self._db)
+        return PlaylistQuerySet(self.model)
 
     def published(self):
         return self.get_queryset().published()
