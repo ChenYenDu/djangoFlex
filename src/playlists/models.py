@@ -31,8 +31,15 @@ class Playlist(models.Model):
     description = models.TextField(blank=True, null=True)
     slug = models.SlugField(blank=True, null=True)
     video = models.ForeignKey(
-        Video, null=True, on_delete=models.SET_NULL
+        Video,
+        null=True,
+        on_delete=models.SET_NULL,
+        blank=True,
+        related_name="playlist_featured",
     )  # one video per playlist
+    videos = models.ManyToManyField(
+        Video, blank=True, related_name="playlist_item", through="PlaylistItem"
+    )
     active = models.BooleanField(default=True)
     state = models.CharField(
         max_length=2,
@@ -59,3 +66,13 @@ class Playlist(models.Model):
 # Change publish_timestamp and slug fields with pre_save signal
 pre_save.connect(publish_state_pre_save, sender=Playlist)
 pre_save.connect(slugify_pre_save, sender=Playlist)
+
+
+class PlaylistItem(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    order = models.IntegerField(default=1)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "-timestamp"]
