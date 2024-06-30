@@ -18,7 +18,7 @@ class PlaylistModelTestCase(TestCase):
         self.video_3 = Video.objects.create(
             title="Test Video Title 3", video_id="test ta 3"
         )
-        
+        self.video_qs = Video.objects.all()
 
     def setUp(self) -> None:
         self.createVideos()
@@ -30,20 +30,31 @@ class PlaylistModelTestCase(TestCase):
             state=PublishStateOptions.PUBLISH,
             video=self.video_1,
         )
-        video_qs = Video.objects.all()
-        self.playlist_2.videos.set(video_qs)
+        self.playlist_2.videos.set(self.video_qs)
         self.playlist_2.save()
 
     def test_playlist_video(self):
         self.assertEqual(self.playlist_1.video, self.video_1)
-    
+
     def test_playlist_video_items(self):
         count = self.playlist_2.videos.all().count()
         self.assertEqual(count, 3)
-    
+
+    def test_playlist_video_through_model(self):
+        video_qs = sorted(list(self.video_qs.values_list("id")))
+        playlist_2_video_qs = sorted(
+            list(self.playlist_2.videos.all().values_list("id"))
+        )
+        playlist_2_playlist_item_qs = sorted(
+            list(self.playlist_2.playlistitem_set.all().values_list("video"))
+        )
+        self.assertEqual(video_qs, playlist_2_video_qs, playlist_2_playlist_item_qs)
+
     def test_video_playlist_ids_property(self):
         ids = self.playlist_1.video.get_playlist_ids()
-        actual_ids = list(Playlist.objects.filter(video=self.video_1).values_list("id", flat=True))
+        actual_ids = list(
+            Playlist.objects.filter(video=self.video_1).values_list("id", flat=True)
+        )
         self.assertEqual(ids, actual_ids)
 
     def test_video_playlist(self):
